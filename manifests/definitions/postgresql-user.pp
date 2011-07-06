@@ -82,10 +82,11 @@ define postgresql::user(
 
         # change only if it's not the same password
         exec { "Change password for postgres user $name":
-          command => "psql ${connection} -c \"ALTER USER \\\"$name\\\" PASSWORD '$password' \"",
+          command => "/usr/bin/psql ${connection} -c \"ALTER USER \"${name}\" PASSWORD '$password' \"",
           user    => "postgres",
-          unless  => "TMPFILE=$(mktemp /tmp/.pgpass.XXXXXX) && echo '${host}:${port}:template1:${name}:${pgpass}' > \$TMPFILE && PGPASSFILE=\$TMPFILE psql -h ${host} -p ${port} -U ${name} -c '\\q' template1 && rm -f \$TMPFILE",
+          unless  => "TMPFILE=$(mktemp /tmp/.pgpass.XXXXXX) && echo '${host}:${port}:template1:${name}:${pgpass}' > \\\$TMPFILE && chmod 600 \\\$TMPFILE && PGPASSFILE=\\\$TMPFILE psql -h ${host} -p ${port} -U ${name} -c '\\q' template1 && rm -f \\\$TMPFILE",
           require => Exec["Create postgres user $name"],
+          provider => 'shell';
         }
       }
 
