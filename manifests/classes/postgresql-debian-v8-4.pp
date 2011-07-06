@@ -19,17 +19,29 @@ class postgresql::debian::v8-4 {
 
       include postgresql::debian::base
 
-      service {"postgresql":
-        ensure    => running,
-        enable    => true,
-        hasstatus => true,
-        start     => "/etc/init.d/postgresql start ${version}",
-        status    => "/etc/init.d/postgresql status ${version}",
-        stop      => "/etc/init.d/postgresql stop ${version}",
-        restart   => "/etc/init.d/postgresql restart ${version}",
-        require   => Package["postgresql-common"],
+      case $lsbdistcodename {
+        "lenny", "squeeze": {
+            service {"postgresql":
+              ensure    => running,
+              enable    => true,
+              hasstatus => true,
+              start     => "/etc/init.d/postgresql start ${version}",
+              status    => "/etc/init.d/postgresql status ${version}",
+              stop      => "/etc/init.d/postgresql stop ${version}",
+              restart   => "/etc/init.d/postgresql restart ${version}",
+              require   => Package["postgresql-common"],
+            }
+        }
+        "lucid": {
+            service {"postgresql-${version}":
+              ensure    => running,
+              enable    => true,
+              hasstatus => true,
+              alias     => "postgresql";
+            }
+        }
       }
-
+      
       if $lsbdistcodename == "lenny" {
         apt::preferences {[
           "libpq5",
