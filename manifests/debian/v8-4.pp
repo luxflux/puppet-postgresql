@@ -41,25 +41,23 @@ class postgresql::debian::v8-4 {
             }
         }
       }
-      
+
+      exec { "reload postgresql ${version}":
+        refreshonly => true,
+        command     => "/etc/init.d/postgresql reload ${version}",
+      }
+
       if $lsbdistcodename == "lenny" {
         apt::preferences {[
           "libpq5",
           "postgresql-${version}",
           "postgresql-client-${version}",
-          "postgresql-common", 
+          "postgresql-common",
           "postgresql-client-common",
           "postgresql-contrib-${version}"
           ]:
           pin      => "release a=${lsbdistcodename}-backports",
           priority => "1100",
-          before   => Package[
-            "libpq5",
-            "postgresql-client-${version}",
-            "postgresql-common",
-            "postgresql-client-common",
-            "postgresql-contrib-${version}"
-          ],
         }
       }
 

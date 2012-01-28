@@ -13,7 +13,11 @@ class postgresql::base {
     require => Package["postgresql"],
   }
 
-  package {"postgresql":
+  package { "postgresql":
+    name   => $operatingsystem ? {
+      /Debian|Ubuntu|kFreeBSD/ => "postgresql",
+      /RedHat|CentOS|Fedora/   => "postgresql-server",
+    },
     ensure => present,
     notify => undef,
   }
@@ -26,7 +30,7 @@ class postgresql::base {
     ensure => $lens,
     mode   => 0644,
     owner  => "root",
-    source => "puppet:///postgresql/pg_hba.aug",
+    source => "puppet:///modules/postgresql/pg_hba.aug",
   }
 
 }
